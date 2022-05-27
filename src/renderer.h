@@ -7,10 +7,17 @@
 
 
 namespace Game {
+    struct Color {
+        float r;
+        float g;
+        float b;
+        float a;
+    };
+
     class Renderer {
     public:
-        Renderer()
-                : drawable{0}, program{0} {
+        Renderer(float viewport_width_, float viewport_height_)
+                : drawable{0}, program{0}, viewport_width{viewport_width_}, viewport_height{viewport_height_} {
         }
 
         ~Renderer() {
@@ -21,10 +28,12 @@ namespace Game {
 
         void deinit();
 
-        void render_rectangle(float x, float y, float width, float height);
+        void render_rectangle(float x, float y, float width, float height, Color color) const;
 
     private:
         GLuint drawable;
         GLuint program;
+        float viewport_width;
+        float viewport_height;
     };
 }

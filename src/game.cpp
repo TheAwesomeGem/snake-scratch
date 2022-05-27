@@ -17,6 +17,7 @@ namespace Game {
     }
 
     void render(Renderer* renderer) {
-        renderer->render_rectangle(0.5F, 0.5F, 0.25F, 0.25F);
+        renderer->render_rectangle(1280.0F - 100.0F, 720.0F - 100.0F, 100.F, 100.F, Color { 1.0F, 0.5F, 0.5F, 1.0F });
+        renderer->render_rectangle(0.0F, 0.0F, 100.F, 100.F, Color { 0.0F, 0.25F, 1.0F, 1.0F });
     }
 }

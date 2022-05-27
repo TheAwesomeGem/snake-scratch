@@ -110,7 +110,7 @@ int main(int arg_c, char* arg_v[]) {
 
     SDL_GL_SetSwapInterval(-1); // Adaptive Vsync
 
-    Game::Renderer game_renderer;
+    Game::Renderer game_renderer{(float) width, (float) height};
     game_renderer.init();
 
     while (is_running) {
@@ -136,21 +136,21 @@ int main(int arg_c, char* arg_v[]) {
             }
         }
 
-        const Uint8* currentKeyStates = SDL_GetKeyboardState( nullptr );
+        const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
 
-        if(currentKeyStates[SDL_SCANCODE_A]) {
+        if (currentKeyStates[SDL_SCANCODE_A]) {
             Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_LEFT);
         }
 
-        if(currentKeyStates[SDL_SCANCODE_D]) {
+        if (currentKeyStates[SDL_SCANCODE_D]) {
             Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_RIGHT);
         }
 
-        if(currentKeyStates[SDL_SCANCODE_W]) {
+        if (currentKeyStates[SDL_SCANCODE_W]) {
             Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_UP);
         }
 
-        if(currentKeyStates[SDL_SCANCODE_S]) {
+        if (currentKeyStates[SDL_SCANCODE_S]) {
             Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_DOWN);
         }
 

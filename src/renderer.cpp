@@ -3,6 +3,7 @@
 #include <cstdio>
 #include "renderer.h"
 #include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 
 namespace Game {
@@ -14,10 +15,10 @@ namespace Game {
         glGenBuffers(1, &buffer_id);
 
         float vertex_data[]{
-                -0.25F, 0.25F, //       BOTTOM LEFT
-                0.25F, 0.25F, //    BOTTOM RIGHT
-                -0.25, -0.25F,  //  TOP LEFT
-                0.25, -0.25F    //  TOP RIGHT
+                -1.0F, 1.0F, //       BOTTOM LEFT
+                1.0F, 1.0F, //    BOTTOM RIGHT
+                -1.0F, -1.0F,  //  TOP LEFT
+                1.0, -1.0F    //  TOP RIGHT
         };
         glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, &vertex_data, GL_STATIC_DRAW);
@@ -46,11 +47,13 @@ namespace Game {
         vertex_shader = glCreateShader(GL_VERTEX_SHADER);
         const char* vertex_shader_src = R"(#version 460 core
                                             layout (location = 0) in vec3 aPos;
+                                            uniform mat4 transform;
+                                            uniform vec4 color;
                                             out vec4 vertexColor;
                                             void main()
                                             {
-                                                gl_Position = vec4(aPos, 1.0); // see how we directly give a vec3 to vec4's constructor
-                                                vertexColor = vec4(0.5, 0.0, 0.0, 1.0); // set the output variable to a dark-red color
+                                                gl_Position = transform * vec4(aPos, 1.0);
+                                                vertexColor = color;
                                             })";
         glShaderSource(vertex_shader, 1, &vertex_shader_src, NULL);
         glCompileShader(vertex_shader);
@@ -68,7 +71,7 @@ namespace Game {
         fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
         const char* fragment_shader_src = R"(#version 460 core
                                             out vec4 FragColor;
-                                            in vec4 vertexColor; // the input variable from the vertex shader (same name and same type)
+                                            in vec4 vertexColor;
 
                                             void main()
                                             {
@@ -110,10 +113,22 @@ namespace Game {
         program = 0;
     }
 
-    void Renderer::render_rectangle(float x, float y, float width, float height) {
+    void Renderer::render_rectangle(float x, float y, float width, float height, Color color) const {
         glBindVertexArray(drawable);
         glUseProgram(program);
 
+        float canonical_x = ((x / this->viewport_width) * 2.0F) - 1.0F;
+        float canonical_y = ((y / this->viewport_height) * 2.0F) - 1.0F;
+        float canonical_width = width / this->viewport_width;
+        float canonical_height = height / this->viewport_height;
+
+        glm::mat4 transform = glm::mat4{1.0F};
+        transform = glm::translate(transform, glm::vec3(canonical_x + canonical_width, canonical_y + canonical_height, 0.0F));
+        // TODO: Rotate here.
+        transform = glm::scale(transform, glm::vec3(canonical_width, canonical_height, 1.0F));
+
+        glUniformMatrix4fv(glGetUniformLocation(program, "transform"), 1, GL_FALSE, glm::value_ptr(transform));
+        glUniform4f(glGetUniformLocation(program, "color"), color.r, color.g, color.b, color.a);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
 }
