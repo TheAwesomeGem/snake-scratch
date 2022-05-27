@@ -110,6 +110,9 @@ int main(int arg_c, char* arg_v[]) {
 
     SDL_GL_SetSwapInterval(-1); // Adaptive Vsync
 
+    Game::Renderer game_renderer;
+    game_renderer.init();
+
     while (is_running) {
         last_frame_time = current_frame_time;
         current_frame_time = SDL_GetPerformanceCounter();
@@ -131,16 +134,32 @@ int main(int arg_c, char* arg_v[]) {
                     }
                 }
             }
-
-            Game::poll();
         }
 
-        printf("INFO: %d FPS\n", (int) (1.0 / delta_frame_time));
+        const Uint8* currentKeyStates = SDL_GetKeyboardState( nullptr );
+
+        if(currentKeyStates[SDL_SCANCODE_A]) {
+            Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_LEFT);
+        }
+
+        if(currentKeyStates[SDL_SCANCODE_D]) {
+            Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_RIGHT);
+        }
+
+        if(currentKeyStates[SDL_SCANCODE_W]) {
+            Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_UP);
+        }
+
+        if(currentKeyStates[SDL_SCANCODE_S]) {
+            Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_DOWN);
+        }
+
+        // printf("INFO: %d FPS\n", (int) (1.0 / delta_frame_time));
         Game::update(delta_frame_time);
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        Game::render();
+        Game::render(&game_renderer);
 
         SDL_GL_SwapWindow(window);
     }
