@@ -6,6 +6,11 @@
 #include "glm/gtc/type_ptr.hpp"
 
 
+// TODO: Add texture coordinate and texture rendering with alpha transparency.
+// TODO: Add Orthogonal Projection and remove existing Screen Space Projection.
+// TODO: Add Camera System.
+// TODO: Add Sprite Batch Rendering??? Maybe!!
+
 namespace Game {
     void Renderer::init() {
         glGenVertexArrays(1, &drawable);
@@ -124,11 +129,18 @@ namespace Game {
 
         glm::mat4 transform = glm::mat4{1.0F};
         transform = glm::translate(transform, glm::vec3(canonical_x + canonical_width, canonical_y + canonical_height, 0.0F));
-        // TODO: Rotate here.
+        // NOTE: Rotate here.
         transform = glm::scale(transform, glm::vec3(canonical_width, canonical_height, 1.0F));
 
         glUniformMatrix4fv(glGetUniformLocation(program, "transform"), 1, GL_FALSE, glm::value_ptr(transform));
         glUniform4f(glGetUniformLocation(program, "color"), color.r, color.g, color.b, color.a);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
+
+    void Renderer::render_rectangle_border(float x, float y, float width, float height, Color color, float thickness) const {
+        render_rectangle(x, y, width, thickness, color); // Bottom
+        render_rectangle(x, y + height - thickness, width, thickness, color); // Top
+        render_rectangle(x, y, thickness, height, color); // Left
+        render_rectangle(x + width - thickness, y, thickness, height, color); // Right
     }
 }

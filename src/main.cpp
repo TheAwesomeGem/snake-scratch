@@ -7,8 +7,7 @@
 #include "game.h"
 
 
-// TODO: Separate platform/SDL code from game code.
-// TODO: Add logger.
+// TODO: Add better logger.
 
 bool init_submodules() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -112,6 +111,8 @@ int main(int arg_c, char* arg_v[]) {
 
     Game::Renderer game_renderer{(float) width, (float) height};
     game_renderer.init();
+
+    Game::init();
 
     while (is_running) {
         last_frame_time = current_frame_time;
