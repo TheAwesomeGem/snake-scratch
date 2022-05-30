@@ -6,21 +6,29 @@
 
 namespace Game {
 
+    enum class Direction {
+        NORTH,
+        SOUTH,
+        EAST,
+        WEST
+    };
+
     struct Segment {
         // TODO: Implement Segment for Snakes.
     };
 
     struct Snake {
-        // TODO: Add Velocity
-        // TODO: Add Movement System
-
         static constexpr const Color COLOR{0.0F, 0.0F, 1.0F, 1.0F};
 
         int x;
         int y;
+
+        Direction direction;
     };
 
     struct Prey {
+        // TODO: Later add movement for prey.
+
         static constexpr const Color COLOR{0.0F, 1.0F, 0.0F, 1.0F};
 
         int x;
@@ -56,16 +64,21 @@ namespace Game {
 
         Level level;
         Prey preys[MAX_PREY_COUNT];
-        size_t preyCount;
+        size_t prey_count;
         Snake snakes[MAX_SNAKE_COUNT];
-        size_t snakeCount;
+        size_t snake_count;
+        double accumulated_tick;
 
         void add_prey(Prey prey) {
-            preys[preyCount++] = prey;
+            preys[prey_count++] = prey;
         }
 
         void add_snake(Snake snake) {
-            snakes[snakeCount++] = snake;
+            snakes[snake_count++] = snake;
+        }
+
+        [[nodiscard]] Snake& player() {
+            return snakes[0];
         }
     };
 
@@ -74,17 +87,62 @@ namespace Game {
     bool init() {
         state.level = Level{40, 20, 2.0F, 24.0F};
         state.add_prey(Prey{2, 2});
-        state.add_snake(Snake{1, 1});
+        state.add_snake(Snake{1, 1, Direction::EAST});
 
         return true;
     }
 
     void input(InputType input, CommandType command) {
-        // TODO: Process input as fast as possible. Untied to the fixed tick rate.
+        if (input == InputType::KEY_DOWN) {
+            switch (command) {
+                case CommandType::TURN_LEFT:
+                    state.player().direction = Direction::WEST;
+                    break;
+                case CommandType::TURN_RIGHT:
+                    state.player().direction = Direction::EAST;
+                    break;
+                case CommandType::TURN_UP:
+                    state.player().direction = Direction::NORTH;
+                    break;
+                case CommandType::TURN_DOWN:
+                    state.player().direction = Direction::SOUTH;
+                    break;
+            }
+        }
+    }
+
+    static constexpr const double TICK_FREQUENCY = 0.5;
+
+    void tick() {
+        // TODO: Check wall collision
+        // TODO: Check prey collision
+
+        Snake& snake = state.player();
+
+        switch (snake.direction) {
+            case Direction::NORTH:
+                snake.y += 1;
+                break;
+            case Direction::SOUTH:
+                snake.y -= 1;
+                break;
+            case Direction::EAST:
+                snake.x += 1;
+                break;
+            case Direction::WEST:
+                snake.x -= 1;
+                break;
+        }
     }
 
     void update(double fps_delta) {
-        // TODO: Add fixed tick update(every 1/2 seconds tick)
+        state.accumulated_tick += fps_delta;
+
+        if (state.accumulated_tick >= TICK_FREQUENCY) {
+            tick();
+
+            state.accumulated_tick = 0;
+        }
     }
 
     void render_cell(Renderer* renderer, int x, int y, Color color) {
@@ -97,13 +155,13 @@ namespace Game {
     }
 
     void render(Renderer* renderer) {
-        for (size_t i = 0; i < state.preyCount; ++i) {
-            const Prey prey = state.preys[i];
+        for (size_t i = 0; i < state.prey_count; ++i) {
+            const Prey& prey = state.preys[i];
             render_cell(renderer, prey.x, prey.y, Prey::COLOR);
         }
 
-        for (size_t i = 0; i < state.snakeCount; ++i) {
-            const Snake snake = state.snakes[i];
+        for (size_t i = 0; i < state.snake_count; ++i) {
+            const Snake& snake = state.snakes[i];
             render_cell(renderer, snake.x, snake.y, Snake::COLOR);
         }
 

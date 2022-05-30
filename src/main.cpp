@@ -137,21 +137,21 @@ int main(int arg_c, char* arg_v[]) {
             }
         }
 
-        const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
+        const Uint8* current_key_states = SDL_GetKeyboardState(nullptr);
 
-        if (currentKeyStates[SDL_SCANCODE_A]) {
+        if (current_key_states[SDL_SCANCODE_A]) {
             Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_LEFT);
         }
 
-        if (currentKeyStates[SDL_SCANCODE_D]) {
+        if (current_key_states[SDL_SCANCODE_D]) {
             Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_RIGHT);
         }
 
-        if (currentKeyStates[SDL_SCANCODE_W]) {
+        if (current_key_states[SDL_SCANCODE_W]) {
             Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_UP);
         }
 
-        if (currentKeyStates[SDL_SCANCODE_S]) {
+        if (current_key_states[SDL_SCANCODE_S]) {
             Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_DOWN);
         }
 
