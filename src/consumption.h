@@ -4,5 +4,5 @@
 
 
 namespace Game {
-    void init_consumption(struct GameState& state);
+    void do_consumption(struct GameState& state);
 }

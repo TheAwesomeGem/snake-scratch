@@ -4,9 +4,13 @@
 
 #include "renderer.h"
 #include <cassert>
+#include <optional>
 
 
 namespace Game {
+    using EntityId = signed long long;
+    constexpr const int INVALID_ENTITY = -1;
+
     enum class Direction {
         NORTH,
         SOUTH,
@@ -14,63 +18,33 @@ namespace Game {
         WEST
     };
 
-    struct Segment {
-        int x;
-        int y;
+    struct Transform {
+        int x = 0;
+        int y = 0;
+        Direction direction = Direction::WEST;
     };
 
-    struct Snake {
-        static constexpr const Color COLOR{0.0F, 0.0F, 1.0F, 1.0F};
+    struct Consumption {
+        EntityId eaten = INVALID_ENTITY;
+    };
+
+    struct Segment {
         static constexpr const size_t MAX_SEGMENT_COUNT = 12;
 
-        Direction move_direction;
-        size_t segment_count;
-        Segment segments[MAX_SEGMENT_COUNT];
-
-    public:
-        Snake()
-                : move_direction{Direction::EAST}, segment_count{0}, segments{} {
-
-        }
-
-        Snake(int x, int y)
-                : Snake() {
-            segments[segment_count++] = Segment{x, y};
-        }
-
-        void add_segment() {
-            assert(segment_count < MAX_SEGMENT_COUNT - 1 || segment_count > 0);
-
-            const Segment& prev_segment = segments[segment_count - 1];
-            Segment segment{prev_segment.x, prev_segment.y};
-            segments[segment_count++] = segment;
-        }
-
-        Segment& head() {
-            return segments[0];
-        }
-
-        // TODO: This is bad. Remove this and send a render queue instead.
-        [[nodiscard]] bool is_segment(int in_x, int in_y) const {
-            for (size_t i = 0; i < segment_count; ++i) {
-                const Segment& segment = segments[i];
-
-                if (segment.x == in_x && segment.y == in_y) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        size_t segment_count = 0;
+        EntityId segments[MAX_SEGMENT_COUNT];
     };
 
-    struct Prey {
-        // TODO: Later add movement for prey.
-        // TODO: Later add segments for prey too and use the same decoupled logic as the snake. Perhaps componentialize all these data.
-        static constexpr const Color COLOR{0.0F, 1.0F, 0.0F, 1.0F};
+    struct Render {
+        Color color;
+    };
 
-        int x;
-        int y;
+    struct Entity {
+        Transform transform;
+        Render render;
+        std::optional<Consumption> consumption;
+        std::optional<Segment> segment;
+        bool is_alive = false;
     };
 
     struct Level {
@@ -97,46 +71,69 @@ namespace Game {
     };
 
     struct GameState {
-        static constexpr const size_t MAX_PREY_COUNT = 4;
-        static constexpr const size_t MAX_SNAKE_COUNT = 1;
-        static constexpr const size_t MAX_KILLED_BY_LISTENERS = 4;
-
+        static constexpr const EntityId MAX_ENTITY_COUNT = 32;
         Level level;
-        Prey preys[MAX_PREY_COUNT];
-        size_t prey_count;
-        Snake snakes[MAX_SNAKE_COUNT];
-        size_t snake_count;
+        EntityId entity_count;
+        Entity entities[MAX_ENTITY_COUNT];
         double accumulated_tick;
-        int killed_by_listener_count;
-        // TODO: Should GameState really be a part of the event args??
-        void (* killed_by_event[MAX_KILLED_BY_LISTENERS])(GameState& inner_state, Prey& victim, Snake& attacker);
 
         GameState()
-                : level{}, preys{}, prey_count{0}, snakes{}, snake_count{0}, accumulated_tick{0.0}, killed_by_listener_count{0}, killed_by_event{} {
+                : level{}, entity_count{0}, entities{}, accumulated_tick{0.0} {
 
         }
 
-        void add_prey(Prey prey) {
-            preys[prey_count++] = prey;
+        // TODO: Move all of these spawn inside it's own module/file and outside of the struct.
+
+        void spawn_prey(int x, int y) {
+            Entity entity{
+                    Transform{x, y, Direction::WEST},
+                    Render{Color{0.0F, 1.0F, 0.0F, 1.0F}},
+                    std::nullopt,
+                    std::nullopt,
+                    true
+            };
+            entities[entity_count++] = entity;
         }
 
-        void add_snake(Snake snake) {
-            snakes[snake_count++] = snake;
+        void spawn_snake(int x, int y) {
+            Entity entity{
+                    Transform{x, y, Direction::WEST},
+                    Render{Color{0.0F, 0.0F, 1.0F, 1.0F}},
+                    std::optional(Consumption{INVALID_ENTITY}),
+                    std::optional(Segment{0, EntityId{}}),
+                    true
+            };
+            entities[entity_count++] = entity;
+        }
+
+        void spawn_segment(Entity& entity) {
+            if (!entity.segment.has_value()) {
+                return;
+            }
+
+            Segment& segment = entity.segment.value();
+
+            assert(segment.segment_count < Segment::MAX_SEGMENT_COUNT);
+
+            Transform transform = Transform{entity.transform.x, entity.transform.y, Direction::WEST};
+
+            if (segment.segment_count > 0) {
+                const Entity& prev_segment_entity = entities[segment.segments[segment.segment_count - 1]];
+                transform.x = prev_segment_entity.transform.x;
+                transform.y = prev_segment_entity.transform.y;
+            }
+
+            EntityId segment_entity_id = entity_count;
+            entities[entity_count++] = Entity{
+                    transform, entity.render.color, std::nullopt, std::nullopt, true
+            };
+
+            segment.segments[segment.segment_count++] = segment_entity_id;
         }
 
         // TODO: This should be a pointer once we start handling 'death'
-        [[nodiscard]] Snake& player() {
-            return snakes[0];
-        }
-
-        void add_killed_by_listener(void(* listener)(GameState& inner_state, Prey& victim, Snake& killer)) {
-            killed_by_event[killed_by_listener_count++] = listener;
-        }
-
-        void broadcast_killed_by(Prey& victim, Snake& killer) {
-            for (size_t i = 0; i < killed_by_listener_count; ++i) {
-                killed_by_event[i](*this, victim, killer);
-            }
+        [[nodiscard]] Entity& player() {
+            return entities[0];
         }
     };
 }

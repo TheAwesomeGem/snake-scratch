@@ -5,10 +5,26 @@
 
 
 namespace Game {
-    void init_consumption(GameState& state) {
-        state.add_killed_by_listener([](GameState& inner_state, Prey& victim, Snake& attacker) {
-            --inner_state.prey_count;
-            attacker.add_segment();
-        });
+    void do_consumption(GameState& state) {
+        for (EntityId i = 0; i < state.entity_count; ++i) {
+            Entity& entity = state.entities[i];
+
+            if (!entity.consumption.has_value()) {
+                continue;
+            }
+
+            Consumption& consumption = entity.consumption.value();
+
+            if (consumption.eaten == INVALID_ENTITY) {
+                continue;
+            }
+
+            if (entity.segment.has_value()) {
+                state.spawn_segment(entity);
+            }
+
+            state.entities[consumption.eaten].is_alive = false;
+            consumption.eaten = INVALID_ENTITY;
+        }
     }
 }

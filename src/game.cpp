@@ -1,6 +1,5 @@
 // Copyright (c) Topaz Centuallas 2022.
 
-#include <cassert>
 #include "game.h"
 #include "renderer.h"
 #include "collision.h"
@@ -14,10 +13,9 @@ namespace Game {
 
     bool init() {
         state.level = Level{40, 20, 2.0F, 24.0F};
-        state.add_prey(Prey{2, 2});
-        state.add_snake(Snake{1, 1});
-
-        init_consumption(state);
+        state.spawn_snake(1, 1);
+        state.spawn_prey(2, 2);
+        state.spawn_prey(4, 5);
 
         return true;
     }
@@ -26,16 +24,16 @@ namespace Game {
         if (input == InputType::KEY_DOWN) {
             switch (command) {
                 case CommandType::TURN_LEFT:
-                    state.player().move_direction = Direction::WEST;
+                    state.player().transform.direction = Direction::WEST;
                     break;
                 case CommandType::TURN_RIGHT:
-                    state.player().move_direction = Direction::EAST;
+                    state.player().transform.direction = Direction::EAST;
                     break;
                 case CommandType::TURN_UP:
-                    state.player().move_direction = Direction::NORTH;
+                    state.player().transform.direction = Direction::NORTH;
                     break;
                 case CommandType::TURN_DOWN:
-                    state.player().move_direction = Direction::SOUTH;
+                    state.player().transform.direction = Direction::SOUTH;
                     break;
             }
         }
@@ -45,7 +43,10 @@ namespace Game {
 
     void tick() {
         do_collision(state);
+        do_consumption(state);
         do_movement(state);
+
+        // TODO: Clean up all the dead entities here.
     }
 
     void update(double fps_delta) {
@@ -68,21 +69,11 @@ namespace Game {
     }
 
     void render(Renderer* renderer) {
-        for (size_t i = 0; i < state.prey_count; ++i) {
-            const Prey& prey = state.preys[i];
-            render_cell(renderer, prey.x, prey.y, Prey::COLOR);
-        }
+        for (EntityId i = 0; i < state.entity_count; ++i) {
+            const Entity& entity = state.entities[i];
 
-        for (size_t i = 0; i < state.snake_count; ++i) {
-            const Snake& snake = state.snakes[i];
-
-            // TODO: Submit a queue of segment to be used here to render instead of this garbage slow loop
-            for (int y = 0; y < state.level.cell_count_y; ++y) {
-                for (int x = 0; x < state.level.cell_count_x; ++x) {
-                    if (snake.is_segment(x, y)) {
-                        render_cell(renderer, x, y, Snake::COLOR);
-                    }
-                }
+            if (entity.is_alive) {
+                render_cell(renderer, entity.transform.x, entity.transform.y, entity.render.color);
             }
         }
 
