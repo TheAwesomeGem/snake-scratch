@@ -6,6 +6,8 @@
 #include "movement.h"
 #include "game_state.h"
 #include "consumption.h"
+#include "random.h"
+#include <iostream>
 
 
 namespace Game {
@@ -39,15 +41,20 @@ namespace Game {
         }
     }
 
-    static constexpr const double TICK_FREQUENCY = 0.5;
+    void clean_up(GameState& state) {
+        std::erase_if(state.entities, [](const auto& item) {
+            return !item.second.is_alive;
+        });
+    }
 
     void tick() {
         do_collision(state);
         do_consumption(state);
         do_movement(state);
-
-        // TODO: Clean up all the dead entities here.
+        clean_up(state);
     }
+
+    static constexpr const double TICK_FREQUENCY = 0.5;
 
     void update(double fps_delta) {
         state.accumulated_tick += fps_delta;
@@ -69,9 +76,7 @@ namespace Game {
     }
 
     void render(Renderer* renderer) {
-        for (EntityId i = 0; i < state.entity_count; ++i) {
-            const Entity& entity = state.entities[i];
-
+        for (const auto& [entity_id, entity]: state.entities) {
             if (entity.is_alive) {
                 render_cell(renderer, entity.transform.x, entity.transform.y, entity.render.color);
             }

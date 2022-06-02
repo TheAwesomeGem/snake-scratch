@@ -6,7 +6,8 @@
 
 namespace Game {
     void update_snake_position(GameState& state, Entity& snake, int x, int y) {
-        const Segment& segment = snake.segment.value();
+        Segment& segment = snake.segment.value();
+        clear_invalid_entities(state, segment.segments, segment.segment_count);
 
         if (segment.segment_count > 0) {
             for (size_t i = segment.segment_count - 1; i > 0; --i) {

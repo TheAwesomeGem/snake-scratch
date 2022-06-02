@@ -5,11 +5,13 @@
 #include "renderer.h"
 #include <cassert>
 #include <optional>
+#include <uuid.h>
+#include <unordered_map>
+#include "random.h"
 
 
 namespace Game {
-    using EntityId = signed long long;
-    constexpr const int INVALID_ENTITY = -1;
+    using EntityId = uuids::uuid;
 
     enum class Direction {
         NORTH,
@@ -25,7 +27,7 @@ namespace Game {
     };
 
     struct Consumption {
-        EntityId eaten = INVALID_ENTITY;
+        EntityId eaten;
     };
 
     struct Segment {
@@ -71,14 +73,13 @@ namespace Game {
     };
 
     struct GameState {
-        static constexpr const EntityId MAX_ENTITY_COUNT = 32;
         Level level;
-        EntityId entity_count;
-        Entity entities[MAX_ENTITY_COUNT];
+        std::unordered_map<EntityId, Entity> entities;
         double accumulated_tick;
+        EntityId player_id;
 
         GameState()
-                : level{}, entity_count{0}, entities{}, accumulated_tick{0.0} {
+                : level{}, entities{}, accumulated_tick{0.0} {
 
         }
 
@@ -92,18 +93,26 @@ namespace Game {
                     std::nullopt,
                     true
             };
-            entities[entity_count++] = entity;
+
+            entities.emplace(uuid_gen(), entity);
         }
 
         void spawn_snake(int x, int y) {
             Entity entity{
                     Transform{x, y, Direction::WEST},
                     Render{Color{0.0F, 0.0F, 1.0F, 1.0F}},
-                    std::optional(Consumption{INVALID_ENTITY}),
+                    std::optional(Consumption{}),
                     std::optional(Segment{0, EntityId{}}),
                     true
             };
-            entities[entity_count++] = entity;
+
+            EntityId id = uuid_gen();
+
+            if (player_id.is_nil()) {
+                player_id = id;
+            }
+
+            entities.emplace(id, entity);
         }
 
         void spawn_segment(Entity& entity) {
@@ -123,17 +132,23 @@ namespace Game {
                 transform.y = prev_segment_entity.transform.y;
             }
 
-            EntityId segment_entity_id = entity_count;
-            entities[entity_count++] = Entity{
+            EntityId segment_entity_id = uuid_gen();
+            entities.emplace(segment_entity_id, Entity{
                     transform, entity.render.color, std::nullopt, std::nullopt, true
-            };
+            });
 
             segment.segments[segment.segment_count++] = segment_entity_id;
         }
 
-        // TODO: This should be a pointer once we start handling 'death'
+        // TODO: This should be a pointer once we start handling player 'death'
         [[nodiscard]] Entity& player() {
-            return entities[0];
+            return entities.at(player_id);
         }
     };
+
+    // TODO: Move this to an entity module
+
+    void clear_invalid_entities(GameState& state, EntityId* storage, size_t& count);
+
+    Entity* get_entity_or_remove(GameState& state, EntityId id_to_find, EntityId* storage, size_t& count);
 }

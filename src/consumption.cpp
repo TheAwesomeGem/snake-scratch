@@ -6,16 +6,14 @@
 
 namespace Game {
     void do_consumption(GameState& state) {
-        for (EntityId i = 0; i < state.entity_count; ++i) {
-            Entity& entity = state.entities[i];
-
+        for (auto& [entity_id, entity]: state.entities) {
             if (!entity.consumption.has_value()) {
                 continue;
             }
 
             Consumption& consumption = entity.consumption.value();
 
-            if (consumption.eaten == INVALID_ENTITY) {
+            if (consumption.eaten.is_nil()) {
                 continue;
             }
 
@@ -24,7 +22,7 @@ namespace Game {
             }
 
             state.entities[consumption.eaten].is_alive = false;
-            consumption.eaten = INVALID_ENTITY;
+            consumption.eaten = uuids::uuid{};
         }
     }
 }

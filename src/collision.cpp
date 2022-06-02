@@ -52,11 +52,10 @@ namespace Game {
                 break;
         }
 
-        for (EntityId i = 1; i < state.entity_count; ++i) {
-            Entity& entity = state.entities[i];
+        for (const auto& [entity_id, entity] : state.entities) {
             // TODO: Add tag here for segment and prey
             if (new_snake_x == entity.transform.x && new_snake_y == entity.transform.y) {
-                snake.consumption.value().eaten = i;
+                snake.consumption.value().eaten = entity_id;
             }
         }
     }

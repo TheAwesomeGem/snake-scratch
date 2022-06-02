@@ -8,6 +8,7 @@ add_subdirectory(SDL)
 add_subdirectory(glad)
 add_subdirectory(SDL_image)
 add_subdirectory(glm)
+add_subdirectory(stduuid)
 
 add_executable(snake_scratch
         src/main.cpp
@@ -24,6 +25,7 @@ add_executable(snake_scratch
         src/game_state.h
         src/consumption.cpp
         src/consumption.h
+        src/random.h
         )
 
 target_link_libraries(snake_scratch PRIVATE SDL2::SDL2main)
@@ -31,3 +33,13 @@ target_link_libraries(snake_scratch PRIVATE SDL2::SDL2)
 target_link_libraries(snake_scratch PRIVATE glad)
 target_link_libraries(snake_scratch PRIVATE SDL2_image)
 target_link_libraries(snake_scratch PRIVATE glm::glm)
+target_link_libraries(snake_scratch PRIVATE stduuid)
+
+#set(SOME_VAR "Howdy how are you?")
+#set(FIND_STR "how")
+#set(REPLACE_STR "who")
+#
+#string(REPLACE ${FIND_STR} ${REPLACE_STR}  OUT_VAR ${SOME_VAR})
+#
+#message("String: ${OUT_VAR}")
+
