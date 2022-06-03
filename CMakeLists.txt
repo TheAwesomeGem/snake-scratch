@@ -26,7 +26,7 @@ add_executable(snake_scratch
         src/consumption.cpp
         src/consumption.h
         src/random.h
-        )
+        src/spawner.cpp src/spawner.h)
 
 target_link_libraries(snake_scratch PRIVATE SDL2::SDL2main)
 target_link_libraries(snake_scratch PRIVATE SDL2::SDL2)
@@ -43,3 +43,11 @@ target_link_libraries(snake_scratch PRIVATE stduuid)
 #
 #message("String: ${OUT_VAR}")
 
+#set(SOME_LIST hello world stuff)
+#list(LENGTH SOME_LIST len)
+#list(APPEND SOME_LIST another)
+#message("length = ${len}")
+#list(GET SOME_LIST 0 1 2 3 SOME_WORDS)
+#message("list = ${SOME_WORDS}")
+#list(FIND SOME_LIST stuff INDEX)
+#message("index = ${INDEX}")

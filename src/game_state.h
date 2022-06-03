@@ -83,63 +83,6 @@ namespace Game {
 
         }
 
-        // TODO: Move all of these spawn inside it's own module/file and outside of the struct.
-
-        void spawn_prey(int x, int y) {
-            Entity entity{
-                    Transform{x, y, Direction::WEST},
-                    Render{Color{0.0F, 1.0F, 0.0F, 1.0F}},
-                    std::nullopt,
-                    std::nullopt,
-                    true
-            };
-
-            entities.emplace(uuid_gen(), entity);
-        }
-
-        void spawn_snake(int x, int y) {
-            Entity entity{
-                    Transform{x, y, Direction::WEST},
-                    Render{Color{0.0F, 0.0F, 1.0F, 1.0F}},
-                    std::optional(Consumption{}),
-                    std::optional(Segment{0, EntityId{}}),
-                    true
-            };
-
-            EntityId id = uuid_gen();
-
-            if (player_id.is_nil()) {
-                player_id = id;
-            }
-
-            entities.emplace(id, entity);
-        }
-
-        void spawn_segment(Entity& entity) {
-            if (!entity.segment.has_value()) {
-                return;
-            }
-
-            Segment& segment = entity.segment.value();
-
-            assert(segment.segment_count < Segment::MAX_SEGMENT_COUNT);
-
-            Transform transform = Transform{entity.transform.x, entity.transform.y, Direction::WEST};
-
-            if (segment.segment_count > 0) {
-                const Entity& prev_segment_entity = entities[segment.segments[segment.segment_count - 1]];
-                transform.x = prev_segment_entity.transform.x;
-                transform.y = prev_segment_entity.transform.y;
-            }
-
-            EntityId segment_entity_id = uuid_gen();
-            entities.emplace(segment_entity_id, Entity{
-                    transform, entity.render.color, std::nullopt, std::nullopt, true
-            });
-
-            segment.segments[segment.segment_count++] = segment_entity_id;
-        }
-
         // TODO: This should be a pointer once we start handling player 'death'
         [[nodiscard]] Entity& player() {
             return entities.at(player_id);

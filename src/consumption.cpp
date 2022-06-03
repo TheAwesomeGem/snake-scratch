@@ -2,6 +2,7 @@
 
 #include "consumption.h"
 #include "game_state.h"
+#include "spawner.h"
 
 
 namespace Game {
@@ -18,10 +19,11 @@ namespace Game {
             }
 
             if (entity.segment.has_value()) {
-                state.spawn_segment(entity);
+                spawn_segment(state, entity);
             }
 
             state.entities[consumption.eaten].is_alive = false;
+            prey_death(state);
             consumption.eaten = uuids::uuid{};
         }
     }

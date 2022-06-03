@@ -6,8 +6,8 @@
 #include "movement.h"
 #include "game_state.h"
 #include "consumption.h"
+#include "spawner.h"
 #include "random.h"
-#include <iostream>
 
 
 namespace Game {
@@ -15,9 +15,9 @@ namespace Game {
 
     bool init() {
         state.level = Level{40, 20, 2.0F, 24.0F};
-        state.spawn_snake(1, 1);
-        state.spawn_prey(2, 2);
-        state.spawn_prey(4, 5);
+        spawn_snake(state, 1, 1);
+        spawn_prey(state, 2, 2);
+        spawn_prey(state, 4, 5);
 
         return true;
     }
@@ -41,7 +41,7 @@ namespace Game {
         }
     }
 
-    void clean_up(GameState& state) {
+    void clean_up() {
         std::erase_if(state.entities, [](const auto& item) {
             return !item.second.is_alive;
         });
@@ -51,7 +51,7 @@ namespace Game {
         do_collision(state);
         do_consumption(state);
         do_movement(state);
-        clean_up(state);
+        clean_up();
     }
 
     static constexpr const double TICK_FREQUENCY = 0.5;
