@@ -3,28 +3,31 @@
 #pragma once
 
 #include "core.h"
-#include "renderer.h"
+#include "game_state.h"
 
 
 namespace Game {
-    enum class InputType {
-        KEY_DOWN,
-        KEY_UP
+    struct GameApp {
+        ~GameApp();
+
+        bool init();
+
+        void deinit();
+
+        void input(InputType input, CommandType command);
+
+        void update(double fps_delta);
+
+        void render(struct Renderer* renderer);
+
+    private:
+        void clean_up();
+
+        void tick();
+
+        void render_cell(Renderer* renderer, int x, int y, Color color) const;
+
+    private:
+        GameState state;
     };
-
-    enum class CommandType {
-        TURN_LEFT,
-        TURN_RIGHT,
-        TURN_UP,
-        TURN_DOWN
-    };
-
-
-    bool init();
-
-    void input(InputType input, CommandType command);
-
-    void update(double fps_delta);
-
-    void render(Renderer* renderer);
 }

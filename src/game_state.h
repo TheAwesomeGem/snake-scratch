@@ -7,6 +7,7 @@
 #include <optional>
 #include <uuid.h>
 #include <unordered_map>
+#include <deque>
 #include "random.h"
 
 
@@ -75,11 +76,12 @@ namespace Game {
     struct GameState {
         Level level;
         std::unordered_map<EntityId, Entity> entities;
+        std::deque<CommandType> input_commands;
         double accumulated_tick;
         EntityId player_id;
 
         GameState()
-                : level{}, entities{}, accumulated_tick{0.0} {
+                : level{}, entities{}, input_commands{}, accumulated_tick{0.0} {
 
         }
 

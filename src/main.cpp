@@ -1,5 +1,6 @@
 // Copyright (c) Topaz Centuallas 2022.
 
+#include "core.h"
 #include <glad/glad.h>
 #include <SDL.h>
 #include <SDL_image.h>
@@ -8,7 +9,6 @@
 
 
 // TODO: Add better logger.
-
 bool init_submodules() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("Error: %s\n", SDL_GetError());
@@ -112,7 +112,12 @@ int main(int arg_c, char* arg_v[]) {
     Game::Renderer game_renderer{(float) width, (float) height};
     game_renderer.init();
 
-    Game::init();
+    Game::GameApp game;
+    game.init();
+
+    int key_length;
+    const Uint8* current_key_states = SDL_GetKeyboardState(&key_length);
+    std::vector<Uint8> prev_key_states(key_length);
 
     while (is_running) {
         last_frame_time = current_frame_time;
@@ -137,30 +142,49 @@ int main(int arg_c, char* arg_v[]) {
             }
         }
 
-        const Uint8* current_key_states = SDL_GetKeyboardState(nullptr);
 
         if (current_key_states[SDL_SCANCODE_A]) {
-            Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_LEFT);
+            game.input(InputType::KEY_DOWN, CommandType::TURN_LEFT);
         }
 
         if (current_key_states[SDL_SCANCODE_D]) {
-            Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_RIGHT);
+            game.input(InputType::KEY_DOWN, CommandType::TURN_RIGHT);
         }
 
         if (current_key_states[SDL_SCANCODE_W]) {
-            Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_UP);
+            game.input(InputType::KEY_DOWN, CommandType::TURN_UP);
         }
 
         if (current_key_states[SDL_SCANCODE_S]) {
-            Game::input(Game::InputType::KEY_DOWN, Game::CommandType::TURN_DOWN);
+            game.input(InputType::KEY_DOWN, CommandType::TURN_DOWN);
+        }
+
+        if (prev_key_states[SDL_SCANCODE_A] && !current_key_states[SDL_SCANCODE_A]) {
+            game.input(InputType::KEY_UP, CommandType::TURN_LEFT);
+        }
+
+        if (prev_key_states[SDL_SCANCODE_D] && !current_key_states[SDL_SCANCODE_D]) {
+            game.input(InputType::KEY_UP, CommandType::TURN_RIGHT);
+        }
+
+        if (prev_key_states[SDL_SCANCODE_W] && !current_key_states[SDL_SCANCODE_W]) {
+            game.input(InputType::KEY_UP, CommandType::TURN_UP);
+        }
+
+        if (prev_key_states[SDL_SCANCODE_S] && !current_key_states[SDL_SCANCODE_S]) {
+            game.input(InputType::KEY_UP, CommandType::TURN_DOWN);
+        }
+
+        for (size_t i = 0; i < key_length; ++i) {
+            prev_key_states[i] = current_key_states[i];
         }
 
         // printf("INFO: %d FPS\n", (int) (1.0 / delta_frame_time));
-        Game::update(delta_frame_time);
+        game.update(delta_frame_time);
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        Game::render(&game_renderer);
+        game.render(&game_renderer);
 
         SDL_GL_SwapWindow(window);
     }

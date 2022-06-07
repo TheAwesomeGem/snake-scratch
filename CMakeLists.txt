@@ -26,7 +26,12 @@ add_executable(snake_scratch
         src/consumption.cpp
         src/consumption.h
         src/random.h
-        src/spawner.cpp src/spawner.h)
+        src/spawner.cpp
+        src/spawner.h
+        src/ai.cpp
+        src/ai.h
+        src/input.cpp
+        src/input.h)
 
 target_link_libraries(snake_scratch PRIVATE SDL2::SDL2main)
 target_link_libraries(snake_scratch PRIVATE SDL2::SDL2)
@@ -51,3 +56,12 @@ target_link_libraries(snake_scratch PRIVATE stduuid)
 #message("list = ${SOME_WORDS}")
 #list(FIND SOME_LIST stuff INDEX)
 #message("index = ${INDEX}")
+
+#set(lol 4)
+#set(lolo 4)
+#
+#if(lol LESS_EQUAL lolo)
+#    message("It's a set!")
+#else()
+#    message("It's neither!")
+#endif()
