@@ -11,6 +11,7 @@ namespace Game {
                 Render{Color{0.0F, 1.0F, 0.0F, 1.0F}},
                 std::nullopt,
                 std::nullopt,
+                AI{AI::Type::PREY},
                 true
         };
 
@@ -23,6 +24,7 @@ namespace Game {
                 Render{Color{0.0F, 0.0F, 1.0F, 1.0F}},
                 std::optional(Consumption{}),
                 std::optional(Segment{0, EntityId{}}),
+                AI{AI::Type::PREDATOR},
                 true
         };
 
@@ -30,6 +32,7 @@ namespace Game {
 
         if (state.player_id.is_nil()) {
             state.player_id = id;
+            entity.ai = std::nullopt;
         }
 
         state.entities.emplace(id, entity);
@@ -54,7 +57,7 @@ namespace Game {
 
         EntityId segment_entity_id = uuid_gen();
         state.entities.emplace(segment_entity_id, Entity{
-                transform, parent.render.color, std::nullopt, std::nullopt, true
+                transform, parent.render.color, std::nullopt, std::nullopt, std::nullopt, true
         });
 
         segment.segments[segment.segment_count++] = segment_entity_id;

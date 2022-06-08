@@ -28,25 +28,32 @@ namespace Game {
     }
 
     void do_movement(GameState& state) {
-        Entity& snake = state.player();
-        int new_x = snake.transform.x;
-        int new_y = snake.transform.y;
+        for (auto& [entity_id, entity]: state.entities) {
+            int new_x = entity.transform.x;
+            int new_y = entity.transform.y;
 
-        switch (snake.transform.direction) {
-            case Direction::NORTH:
-                new_y += 1;
-                break;
-            case Direction::SOUTH:
-                new_y -= 1;
-                break;
-            case Direction::EAST:
-                new_x += 1;
-                break;
-            case Direction::WEST:
-                new_x -= 1;
-                break;
+            switch (entity.transform.direction) {
+                case Direction::NORTH:
+                    new_y += 1;
+                    break;
+                case Direction::SOUTH:
+                    new_y -= 1;
+                    break;
+                case Direction::EAST:
+                    new_x += 1;
+                    break;
+                case Direction::WEST:
+                    new_x -= 1;
+                    break;
+            }
+
+            if (entity.segment.has_value()) {
+                update_snake_position(state, entity, new_x, new_y);
+            }
+            else {
+                entity.transform.x = new_x;
+                entity.transform.y = new_y;
+            }
         }
-
-        update_snake_position(state, snake, new_x, new_y);
     }
 }

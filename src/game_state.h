@@ -18,7 +18,18 @@ namespace Game {
         NORTH,
         SOUTH,
         EAST,
-        WEST
+        WEST,
+
+        MAX
+    };
+
+    struct AI {
+        enum class Type {
+            PREY,
+            PREDATOR
+        };
+
+        Type type;
     };
 
     struct Transform {
@@ -47,6 +58,7 @@ namespace Game {
         Render render;
         std::optional<Consumption> consumption;
         std::optional<Segment> segment;
+        std::optional<AI> ai;
         bool is_alive = false;
     };
 

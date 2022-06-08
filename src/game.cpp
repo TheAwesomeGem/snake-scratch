@@ -41,6 +41,7 @@ namespace Game {
     }
 
     void GameApp::tick() {
+        // TODO: Decouple tick rate based on the entity to have entity update in varying level of speed.
         do_collision(state);
         do_consumption(state);
         do_movement(state);
