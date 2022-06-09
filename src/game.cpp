@@ -41,25 +41,24 @@ namespace Game {
     }
 
     void GameApp::tick() {
-        // TODO: Decouple tick rate based on the entity to have entity update in varying level of speed.
+        do_ai(state);
         do_collision(state);
         do_consumption(state);
         do_movement(state);
         clean_up();
     }
 
-    static constexpr const double TICK_FREQUENCY = 0.5;
+    static constexpr const double TICK_FREQUENCY = 0.15;
 
     void GameApp::update(double fps_delta) {
-        do_ai(state);
         do_input(state);
 
-        state.accumulated_tick += fps_delta;
+        state.time_since_last_tick += fps_delta;
 
-        if (state.accumulated_tick >= TICK_FREQUENCY) {
+        if (state.time_since_last_tick >= TICK_FREQUENCY) {
             tick();
 
-            state.accumulated_tick = 0;
+            state.time_since_last_tick = 0;
         }
     }
 

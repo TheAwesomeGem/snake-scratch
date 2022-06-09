@@ -46,7 +46,9 @@ namespace Game {
 
             switch (entity.ai->type) {
                 case AI::Type::PREY: {
-                    prey_movement_ai(state, entity);
+                    if (entity.movement.has_value()) {
+                        prey_movement_ai(state, entity);
+                    }
                     break;
                 }
 

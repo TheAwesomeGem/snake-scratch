@@ -38,6 +38,11 @@ namespace Game {
         Direction direction = Direction::WEST;
     };
 
+    struct Movement {
+        uint16_t ticks_per_step;
+        uint16_t accumulated_ticks;
+    };
+
     struct Consumption {
         EntityId eaten;
     };
@@ -56,6 +61,7 @@ namespace Game {
     struct Entity {
         Transform transform;
         Render render;
+        std::optional<Movement> movement;
         std::optional<Consumption> consumption;
         std::optional<Segment> segment;
         std::optional<AI> ai;
@@ -89,11 +95,11 @@ namespace Game {
         Level level;
         std::unordered_map<EntityId, Entity> entities;
         std::deque<CommandType> input_commands;
-        double accumulated_tick;
+        double time_since_last_tick;
         EntityId player_id;
 
         GameState()
-                : level{}, entities{}, input_commands{}, accumulated_tick{0.0} {
+                : level{}, entities{}, input_commands{}, time_since_last_tick{0.0}, player_id{} {
 
         }
 

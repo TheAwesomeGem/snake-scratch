@@ -29,6 +29,19 @@ namespace Game {
 
     void do_movement(GameState& state) {
         for (auto& [entity_id, entity]: state.entities) {
+            if (!entity.movement.has_value()) {
+                continue;
+            }
+
+            Movement& movement = entity.movement.value();
+            ++movement.accumulated_ticks;
+
+            if (movement.accumulated_ticks < movement.ticks_per_step) {
+                continue;
+            }
+
+            movement.accumulated_ticks = 0;
+
             int new_x = entity.transform.x;
             int new_y = entity.transform.y;
 
