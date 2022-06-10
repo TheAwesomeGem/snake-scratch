@@ -13,6 +13,7 @@ namespace Game {
                 std::nullopt,
                 std::nullopt,
                 AI{AI::Type::PREY},
+                Respawn{Respawn::Type::PREY},
                 true
         };
 
@@ -27,6 +28,7 @@ namespace Game {
                 std::optional(Consumption{}),
                 std::optional(Segment{0, EntityId{}}),
                 AI{AI::Type::PREDATOR},
+                Respawn{Respawn::Type::SNAKE},
                 true
         };
 
@@ -59,15 +61,33 @@ namespace Game {
 
         EntityId segment_entity_id = uuid_gen();
         state.entities.emplace(segment_entity_id, Entity{
-                transform, parent.render.color, std::nullopt, std::nullopt, std::nullopt, std::nullopt, true
+                transform, parent.render.color, std::nullopt, std::nullopt, std::nullopt, std::nullopt, std::nullopt, true
         });
 
         segment.segments[segment.segment_count++] = segment_entity_id;
     }
 
-    void prey_death(GameState& state) {
+    void spawn_prey_random(GameState& state) {
         auto dist_x = std::uniform_int_distribution{0, state.level.cell_count_x - 1};
         auto dist_y = std::uniform_int_distribution{0, state.level.cell_count_y - 1};
         spawn_prey(state, dist_x(rng_gen), dist_y(rng_gen));
+    }
+
+    void on_entity_death(GameState& state, const Entity& entity) {
+        if (!entity.respawn.has_value()) {
+            return;
+        }
+
+        switch (entity.respawn->type) {
+            case Respawn::Type::PREY: {
+                spawn_prey_random(state);
+
+                break;
+            }
+
+            default: {
+                printf("Unhandled respawn\n");
+            }
+        }
     }
 }

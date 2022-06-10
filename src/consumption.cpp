@@ -23,7 +23,6 @@ namespace Game {
             }
 
             state.entities[consumption.eaten].is_alive = false;
-            prey_death(state);
             consumption.eaten = uuids::uuid{};
         }
     }

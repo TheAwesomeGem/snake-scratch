@@ -35,8 +35,14 @@ namespace Game {
     }
 
     void GameApp::clean_up() {
-        std::erase_if(state.entities, [](const auto& item) {
-            return !item.second.is_alive;
+        std::erase_if(state.entities, [&](const auto& item) {
+            bool is_dead = !item.second.is_alive;
+
+            if (is_dead) {
+                Game::on_entity_death(state, item.second);
+            }
+
+            return is_dead;
         });
     }
 

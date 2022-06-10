@@ -58,6 +58,15 @@ namespace Game {
         Color color;
     };
 
+    struct Respawn {
+        enum class Type {
+            PREY,
+            SNAKE
+        };
+
+        Type type;
+    };
+
     struct Entity {
         Transform transform;
         Render render;
@@ -65,6 +74,7 @@ namespace Game {
         std::optional<Consumption> consumption;
         std::optional<Segment> segment;
         std::optional<AI> ai;
+        std::optional<Respawn> respawn;
         bool is_alive = false;
     };
 

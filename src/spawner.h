@@ -10,5 +10,7 @@ namespace Game {
 
     void spawn_segment(struct GameState& state, struct Entity& parent);
 
-    void prey_death(struct GameState& state);
+    void spawn_prey_random(struct GameState& state);
+
+    void on_entity_death(struct GameState& state, const struct Entity& entity);
 }
