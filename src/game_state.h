@@ -67,6 +67,14 @@ namespace Game {
         Type type;
     };
 
+    struct Eatable {
+
+    };
+
+    struct Killable {
+
+    };
+
     struct Entity {
         Transform transform;
         Render render;
@@ -75,6 +83,8 @@ namespace Game {
         std::optional<Segment> segment;
         std::optional<AI> ai;
         std::optional<Respawn> respawn;
+        std::optional<Eatable> eatable;
+        std::optional<Killable> killable;
         bool is_alive = false;
     };
 
@@ -113,7 +123,6 @@ namespace Game {
 
         }
 
-        // TODO: This should be a pointer once we start handling player 'death'
         [[nodiscard]] Entity& player() {
             return entities.at(player_id);
         }
@@ -124,4 +133,8 @@ namespace Game {
     void clear_invalid_entities(GameState& state, EntityId* storage, size_t& count);
 
     Entity* get_entity_or_remove(GameState& state, EntityId id_to_find, EntityId* storage, size_t& count);
+
+    void init_level(GameState& state);
+
+    void on_player_death(GameState& state);
 }

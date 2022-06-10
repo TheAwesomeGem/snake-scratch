@@ -13,16 +13,24 @@ namespace Game {
 
         switch (state.input_commands.front()) {
             case CommandType::TURN_LEFT:
-                player.transform.direction = Direction::WEST;
+                if (player.transform.direction != Direction::EAST) {
+                    player.transform.direction = Direction::WEST;
+                }
                 break;
             case CommandType::TURN_RIGHT:
-                player.transform.direction = Direction::EAST;
+                if (player.transform.direction != Direction::WEST) {
+                    player.transform.direction = Direction::EAST;
+                }
                 break;
             case CommandType::TURN_UP:
-                player.transform.direction = Direction::NORTH;
+                if (player.transform.direction != Direction::SOUTH) {
+                    player.transform.direction = Direction::NORTH;
+                }
                 break;
             case CommandType::TURN_DOWN:
-                player.transform.direction = Direction::SOUTH;
+                if (player.transform.direction != Direction::NORTH) {
+                    player.transform.direction = Direction::SOUTH;
+                }
                 break;
         }
 

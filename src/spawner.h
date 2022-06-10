@@ -12,5 +12,7 @@ namespace Game {
 
     void spawn_prey_random(struct GameState& state);
 
+    void spawn_snake_random(struct GameState& state);
+
     void on_entity_death(struct GameState& state, const struct Entity& entity);
 }

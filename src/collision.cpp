@@ -6,56 +6,60 @@
 
 namespace Game {
     void do_collision(GameState& state) {
-        Entity& snake = state.player();
-        int snake_x = snake.transform.x;
-        int snake_y = snake.transform.y;
+        for (auto& [entity_id, entity]: state.entities) {
+            int x = entity.transform.x;
+            int y = entity.transform.y;
 
-        if (snake_x < 1 && snake.transform.direction == Direction::WEST) {
-            snake.transform.direction = Direction::SOUTH;
-        }
+            if ((x < 1 && entity.transform.direction == Direction::WEST) ||
+                (y < 1 && entity.transform.direction == Direction::SOUTH) ||
+                (x >= state.level.cell_count_x - 1 && entity.transform.direction == Direction::EAST) ||
+                (y >= state.level.cell_count_y - 1 && entity.transform.direction == Direction::NORTH)) {
+                entity.is_alive = false;
 
-        if (snake_y < 1 && snake.transform.direction == Direction::SOUTH) {
-            snake.transform.direction = Direction::EAST;
-        }
+                continue;
+            }
 
+            int new_x;
+            int new_y;
+            switch (entity.transform.direction) {
+                case Direction::NORTH:
+                    new_x = x;
+                    new_y = y + 1;
+                    break;
+                case Direction::SOUTH:
+                    new_x = x;
+                    new_y = y - 1;
+                    break;
+                case Direction::EAST:
+                    new_x = x + 1;
+                    new_y = y;
+                    break;
+                case Direction::WEST:
+                    new_x = x - 1;
+                    new_y = y;
+                    break;
+                default:
+                    new_x = x;
+                    new_y = y;
+                    break;
+            }
 
-        if (snake_x >= state.level.cell_count_x - 1 && snake.transform.direction == Direction::EAST) {
-            snake.transform.direction = Direction::NORTH;
-        }
+            if (entity.consumption.has_value()) {
+                for (const auto& [other_entity_id, other_entity]: state.entities) {
+                    if (&other_entity == &entity) {
+                        continue;
+                    }
 
-        if (snake_y >= state.level.cell_count_y - 1 && snake.transform.direction == Direction::NORTH) {
-            snake.transform.direction = Direction::WEST;
-        }
+                    if (new_x == other_entity.transform.x && new_y == other_entity.transform.y) {
+                        if (other_entity.eatable.has_value()) {
+                            entity.consumption->eaten = other_entity_id;
+                        }
 
-        int new_snake_x;
-        int new_snake_y;
-        switch (snake.transform.direction) {
-            case Direction::NORTH:
-                new_snake_x = snake_x;
-                new_snake_y = snake_y + 1;
-                break;
-            case Direction::SOUTH:
-                new_snake_x = snake_x;
-                new_snake_y = snake_y - 1;
-                break;
-            case Direction::EAST:
-                new_snake_x = snake_x + 1;
-                new_snake_y = snake_y;
-                break;
-            case Direction::WEST:
-                new_snake_x = snake_x - 1;
-                new_snake_y = snake_y;
-                break;
-            default:
-                new_snake_x = snake_x;
-                new_snake_y = snake_y;
-                break;
-        }
-
-        for (const auto& [entity_id, entity] : state.entities) {
-            // TODO: Add tag here for segment and prey
-            if (new_snake_x == entity.transform.x && new_snake_y == entity.transform.y) {
-                snake.consumption.value().eaten = entity_id;
+                        if (other_entity.killable.has_value()) {
+                            entity.is_alive = false;
+                        }
+                    }
+                }
             }
         }
     }

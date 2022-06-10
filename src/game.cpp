@@ -16,10 +16,7 @@ namespace Game {
     }
 
     bool GameApp::init() {
-        state.level = Level{40, 20, 2.0F, 24.0F};
-        spawn_snake(state, 1, 1);
-        spawn_prey(state, 2, 2);
-        spawn_prey(state, 4, 5);
+        init_level(state);
 
         return true;
     }
@@ -35,14 +32,21 @@ namespace Game {
     }
 
     void GameApp::clean_up() {
-        std::erase_if(state.entities, [&](const auto& item) {
-            bool is_dead = !item.second.is_alive;
+        for (auto& [entity_id, entity]: state.entities) {
+            bool is_dead = !entity.is_alive;
 
             if (is_dead) {
-                Game::on_entity_death(state, item.second);
+                if (&entity == &state.player()) {
+                    Game::on_player_death(state);
+                    break;
+                } else {
+                    Game::on_entity_death(state, entity);
+                }
             }
+        }
 
-            return is_dead;
+        std::erase_if(state.entities, [&](const auto& item) {
+            return !item.second.is_alive;
         });
     }
 
