@@ -5,26 +5,55 @@
 
 
 namespace Game {
+    void safe_erase(std::vector<Direction>& directions, Direction direction) {
+        auto it = std::find(directions.begin(), directions.end(), direction);
+
+        if (it == directions.end()) {
+            return;
+        }
+
+        directions.erase(it);
+    }
+
     std::vector<Direction> get_available_direction(const GameState& state, const Entity& entity) {
         std::vector<Direction> directions{Direction::WEST, Direction::SOUTH, Direction::EAST, Direction::NORTH};
         int x = entity.transform.x;
         int y = entity.transform.y;
 
+        if (entity.segment.has_value()) {
+            switch (entity.transform.direction) {
+                case Direction::NORTH:
+                    safe_erase(directions, Direction::SOUTH);
+                    break;
+                case Direction::SOUTH:
+                    safe_erase(directions, Direction::NORTH);
+                    break;
+                case Direction::EAST:
+                    safe_erase(directions, Direction::WEST);
+                    break;
+                case Direction::WEST:
+                    safe_erase(directions, Direction::EAST);
+                    break;
+                case Direction::MAX:
+                    break;
+            }
+        }
+
         if (x < 1) {
-            directions.erase(std::find(directions.begin(), directions.end(), Direction::WEST));
+            safe_erase(directions, Direction::WEST);
         }
 
         if (y < 1) {
-            directions.erase(std::find(directions.begin(), directions.end(), Direction::SOUTH));
+            safe_erase(directions, Direction::SOUTH);
         }
 
 
         if (x >= state.level.cell_count_x - 1) {
-            directions.erase(std::find(directions.begin(), directions.end(), Direction::EAST));
+            safe_erase(directions, Direction::EAST);
         }
 
         if (y >= state.level.cell_count_y - 1) {
-            directions.erase(std::find(directions.begin(), directions.end(), Direction::NORTH));
+            safe_erase(directions, Direction::NORTH);
         }
 
         return directions;
@@ -46,9 +75,17 @@ namespace Game {
 
             switch (entity.ai->type) {
                 case AI::Type::PREY: {
-                    if (entity.movement.has_value()) {
+                    if (entity.movement.has_value() && entity.movement->just_moved()) {
                         prey_movement_ai(state, entity);
                     }
+                    break;
+                }
+
+                case AI::Type::PREDATOR: {
+                    if (entity.movement.has_value() && entity.movement->just_moved()) {
+                        prey_movement_ai(state, entity);
+                    }
+
                     break;
                 }
 

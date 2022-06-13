@@ -41,6 +41,10 @@ namespace Game {
     struct Movement {
         uint16_t ticks_per_step;
         uint16_t accumulated_ticks;
+
+        bool just_moved() const {
+            return accumulated_ticks == 0;
+        }
     };
 
     struct Consumption {
