@@ -1,14 +1,38 @@
 cmake_minimum_required(VERSION 3.22)
 project(snake_scratch C CXX)
 
+include(FetchContent)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
-add_subdirectory(SDL)
-add_subdirectory(glad)
-add_subdirectory(SDL_image)
-add_subdirectory(glm)
-add_subdirectory(stduuid)
+FetchContent_Declare(
+        SDL
+        GIT_REPOSITORY "https://github.com/libsdl-org/SDL"
+        GIT_TAG "53dea9830964eee8b5c2a7ee0a65d6e268dc78a1" # 2.0.22
+)
+
+FetchContent_Declare(
+        SDL_image
+        GIT_REPOSITORY "https://github.com/libsdl-org/SDL_image"
+        GIT_TAG "3396c84c703eda256e7ba4e797703e6827d36bb6" # latest
+)
+
+FetchContent_Declare(
+        glm
+        GIT_REPOSITORY "https://github.com/g-truc/glm"
+        GIT_TAG "bf71a834948186f4097caa076cd2663c69a10e1e" # 0.9.9.8
+)
+
+set(UUID_USING_CXX20_SPAN ON CACHE BOOL "" FORCE)
+FetchContent_Declare(
+        stduuid
+        GIT_REPOSITORY "https://github.com/mariusbancila/stduuid"
+        GIT_TAG "3dca9d816cce4f142e82fe249d71c4f781bb7aee" # latest
+)
+
+FetchContent_MakeAvailable(SDL SDL_image glm stduuid)
+add_subdirectory(thirdparty/glad)
 
 add_executable(snake_scratch
         src/main.cpp
@@ -39,6 +63,8 @@ target_link_libraries(snake_scratch PRIVATE glad)
 target_link_libraries(snake_scratch PRIVATE SDL2_image)
 target_link_libraries(snake_scratch PRIVATE glm::glm)
 target_link_libraries(snake_scratch PRIVATE stduuid)
+
+message("Info: $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/SDL2>")
 
 #set(SOME_VAR "Howdy how are you?")
 #set(FIND_STR "how")
